@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\IndexTaskRequest;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+
 
 class TaskController extends Controller
 {
@@ -17,9 +17,41 @@ class TaskController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(IndexTaskRequest $request)
     {
-        $tasks = Task::with('project')->get();
+        $query = Task::with('project');
+        
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        if ($request->has('project_id')) {
+            $query->where('project_id', $request->project_id);
+        }
+        
+        if ($request->has('title')) {
+            $query->where('title', 'like', '%' . $request->title . '%');
+        }
+        
+        if ($request->has('created_from')) {
+            $query->whereDate('created_at', '>=', $request->created_from);
+        }
+        
+        if ($request->has('created_to')) {
+            $query->whereDate('created_at', '<=', $request->created_to);
+        }
+        
+        if ($request->has('overdue') && $request->overdue == 'true') {
+            $query->where('status', 'pending')
+                  ->where('created_at', '<', now()->subDays(7));
+        }
+        
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+        $query->orderBy($sortBy, $sortOrder);
+        
+        $perPage = $request->get('per_page', 10);
+        $tasks = $query->paginate($perPage);
         
         return TaskResource::collection($tasks);
     }
