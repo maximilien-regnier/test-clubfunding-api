@@ -33,5 +33,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Project API routes
 Route::apiResource('projects', ProjectController::class);
 
+// Get tasks for a specific project
+Route::get('projects/{project}/tasks', [ProjectController::class, 'tasks']);
+
 // Task API routes
 Route::apiResource('tasks', TaskController::class);
