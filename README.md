@@ -1,66 +1,135 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Test technique ClubFunding partie backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+La partie backend est réalisée avec Laravel 9 comme demandé dans le document de test technique. 
 
-## About Laravel
+Il s'agit d'une API RESTful permet de gérer des projets et leurs tâches associées. Elle offre des fonctionnalités complètes de CRUD, pagination, filtrage et validation.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Pour la partie frontend, une application React est disponible dans un dépôt séparé. ici : https://github.com/maximilien-regnier/test-clubfunding-frontend
+Consultez le README de ce dépôt pour les instructions d'installation et d'utilisation.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Prérequis
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Docker et Docker Compose
+- Git
+- Composer
+- PHP
 
-## Learning Laravel
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Installation
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+1. Cloner le dépôt
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+git clone https://github.com/maximilien-regnier/laravel-api-project.git
+cd laravel-api-project
+```
 
-## Laravel Sponsors
+2. Installer les dépendances avec Laravel Sail
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+```bash
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v $(pwd):/var/www/html \
+    -w /var/www/html \
+    laravelsail/php83-composer:latest \
+    composer install
+```
 
-### Premium Partners
+3. Configurer les variables d'environnement
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+Si utilisation avec Docker + Laravel Sail alors il suffit de copier le fichier .env.example en .env
 
-## Contributing
+```bash
+cp .env.example .env
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+4. Démarrer les conteneurs Docker
 
-## Code of Conduct
+```bash
+./vendor/bin/sail up -d
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+5. Générer la clé d'application
 
-## Security Vulnerabilities
+```bash
+./vendor/bin/sail artisan key:generate
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+6. Exécuter les migrations et les seeders
 
-## License
+```bash
+./vendor/bin/sail artisan migrate --seed
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Les seeders permettent d'avoir déjà quelques projets et tâches dans la base de données.
+
+## Tests
+
+Exécuter les tests PHPUnit:
+
+```bash
+./vendor/bin/sail artisan test
+```
+
+## Utilisation de l'API
+
+### Endpoints Disponibles
+
+#### Projets
+
+- `GET /api/projects` - Liste des projets (avec pagination et filtrage)
+- `POST /api/projects` - Créer un nouveau projet
+- `GET /api/projects/{id}` - Détails d'un projet
+- `PUT /api/projects/{id}` - Modifier un projet
+- `DELETE /api/projects/{id}` - Supprimer un projet
+- `GET /api/projects/{id}/tasks` - Tâches d'un projet spécifique
+
+#### Tâches
+
+- `GET /api/tasks` - Liste des tâches (avec pagination et filtrage)
+- `POST /api/tasks` - Créer une nouvelle tâche
+- `GET /api/tasks/{id}` - Détails d'une tâche
+- `PUT /api/tasks/{id}` - Modifier une tâche
+- `DELETE /api/tasks/{id}` - Supprimer une tâche
+
+### Paramètres de Filtrage
+
+#### Projets
+
+- `name` - Recherche par nom (insensible à la casse)
+- `created_from` - Projets créés à partir de cette date
+- `created_to` - Projets créés jusqu'à cette date
+- `sort_by` - Tri par: `id`, `name`, `created_at`, `updated_at`
+- `sort_order` - Ordre: `asc`, `desc`
+- `per_page` - Éléments par page (1-100)
+- `page` - Numéro de page
+
+#### Tâches
+
+- `status` - Filtrer par statut: `pending`, `completed`
+- `project_id` - Filtrer par projet
+- `title` - Recherche par titre (insensible à la casse)
+- `created_from` - Tâches créées à partir de cette date
+- `created_to` - Tâches créées jusqu'à cette date
+- `sort_by` - Tri par: `id`, `title`, `status`, `created_at`, `updated_at`
+- `sort_order` - Ordre: `asc`, `desc`
+- `per_page` - Éléments par page (1-100)
+- `page` - Numéro de page
+
+## Frontend React
+
+Un frontend React est disponible dans un dépôt séparé. Consultez le README de ce dépôt pour les instructions d'installation et d'utilisation.
+
+## Commandes Planifiées
+
+Une commande est planifiée pour s'exécuter quotidiennement à 9h00 et envoyer des rappels pour les tâches en attente depuis plus de 7 jours:
+
+```bash
+./vendor/bin/sail artisan tasks:send-overdue-reminders
+```
+
+Pour tester manuellement cette commande:
+
+```bash
+./vendor/bin/sail artisan tasks:send-overdue-reminders
+```
