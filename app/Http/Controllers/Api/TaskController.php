@@ -30,7 +30,7 @@ class TaskController extends Controller
         }
         
         if ($request->has('title')) {
-            $query->where('title', 'like', '%' . $request->title . '%');
+            $query->where('title', 'ilike', '%' . $request->title . '%');
         }
         
         if ($request->has('created_from')) {

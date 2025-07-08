@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\IndexProjectRequest;
+use App\Http\Requests\IndexTaskRequest;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
+use App\Http\Resources\TaskResource;
 use App\Models\Project;
 
 
@@ -22,7 +24,7 @@ class ProjectController extends Controller
         $query = Project::with('tasks');
         
         if ($request->has('name')) {
-            $query->where('name', 'like', '%' . $request->name . '%');
+            $query->where('name', 'ilike', '%' . $request->name . '%');
         }
         
         if ($request->has('created_from')) {
@@ -95,5 +97,42 @@ class ProjectController extends Controller
         return response()->json([
             'message' => 'Project deleted successfully'
         ], 200);
+    }
+
+    /**
+     * Get all tasks for a specific project.
+     *
+     * @param  Project  $project
+     * @param  IndexTaskRequest  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function tasks(Project $project, IndexTaskRequest $request)
+    {
+        $query = $project->tasks();
+        
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        if ($request->has('title')) {
+            $query->where('title', 'ilike', '%' . $request->title . '%');
+        }
+        
+        if ($request->has('created_from')) {
+            $query->whereDate('created_at', '>=', $request->created_from);
+        }
+        
+        if ($request->has('created_to')) {
+            $query->whereDate('created_at', '<=', $request->created_to);
+        }
+        
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+        $query->orderBy($sortBy, $sortOrder);
+        
+        $perPage = $request->get('per_page', 10);
+        $tasks = $query->paginate($perPage);
+        
+        return TaskResource::collection($tasks);
     }
 }
