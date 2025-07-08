@@ -20,8 +20,8 @@ Consultez le README de ce dépôt pour les instructions d'installation et d'util
 1. Cloner le dépôt
 
 ```bash
-git clone https://github.com/maximilien-regnier/laravel-api-project.git
-cd laravel-api-project
+git clone git@github.com:maximilien-regnier/test-clubfunding-api.git
+cd test-clubfunding-api
 ```
 
 2. Installer les dépendances avec Laravel Sail
